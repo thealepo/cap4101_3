@@ -129,7 +129,7 @@ def main():
 
         st.write("Please select a task and record your experience completing it")
 
-        selected_task = st.selectbox("Select Task", ["Task 1: Full App Flow (Timed)" , "Task 2: Advanced Mode Testing" , "Task 3: Interpreting Output"])
+        selected_task = st.selectbox("Select Task", ["Task 1: Full App Flow (Timed)" , "Task 2: Advanced Mode Testing" , "Task 3: Interpreting Results"])
 
         if selected_task == "Task 1: Full App Flow (Timed)":
             task_helper(
@@ -142,7 +142,7 @@ def main():
                 task_name="Task 2",
                 task_description="Use Advanced Mode to display additional info and graphs."
             )
-        else:
+        elif selected_task == "Task 3: Interpreting Results":
             task_helper(
                 task_name="Task 3",
                 task_description="Look at the calories, water intake, and macronutrient results. Report if they are understandable without help."
