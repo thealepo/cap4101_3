@@ -137,7 +137,7 @@ def main():
                 task_description="Time how long it takes to complete the entire app using Advanced Mode.",
                 timer=True
             )
-        elif selected_task == "Task 2: Enable Advanced Mode":
+        elif selected_task == "Task 2: Advanced Mode Testing":
             task_helper(
                 task_name="Task 2",
                 task_description="Use Advanced Mode to display additional info and graphs."
