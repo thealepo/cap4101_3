@@ -1,0 +1,4 @@
+TASKS:
+    - Use advanced mode to display additional information + graphs (task completion or not)
+    - Time how long it takes to complete full app in advanced mode (timing task)
+    - After submitting, look at the calories and macronutrient results, and report if you can understand what they mean or if you need help tags
