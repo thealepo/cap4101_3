@@ -17,13 +17,48 @@ def save_to_csv(data_dict , csv_file):
     if not os.path.isfile(csv_file):
         df_new.to_csv(csv_file , mode='w' , header=True , index=False)
     else:
-        df_new.to_csv(csv_file , mode='a' , header=True , index=False)
+        df_new.to_csv(csv_file , mode='a' , header=False , index=False)
 
 def load_from_csv(csv_file):
     if os.path.isfile(csv_file):
         return pd.read_csv(csv_file)
     else:
         return pd.DataFrame()
+    
+def task_helper(task_name , task_description , timer=False):
+    st.subheader(f"{task_name}")
+    st.write(task_description)
+
+    duration_val = ''
+    if timer:
+        if st.button("Start Task Timer"):
+            st.session_state["start_time"] = time.time()
+            st.info("Timer started. Complete the task and click 'Stop Task Timer'.")
+
+        if st.button("Stop Task Timer") and "start_time" in st.session_state:
+            duration_val = time.time() - st.session_state["start_time"]
+            st.session_state["task_duration"] = duration_val
+            st.success(f"Task completed in {duration_val:.2f} seconds!")
+
+    success = st.radio("Was the task completed successfully?", ["Yes", "No", "Partial"])
+    notes = st.text_area("Observer Notes")
+
+    if st.button("Save Task Results"):
+        duration_val = st.session_state.get("task_duration", "")
+        data_dict = {
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "task_name": task_name,
+            "success": success,
+            "duration_seconds": duration_val,
+            "notes": notes
+        }
+        save_to_csv(data_dict, TASK_CSV)
+        st.success("Task Data Submitted!")
+
+        if "start_time" in st.session_state:
+            del st.session_state["start_time"]
+        if "task_duration" in st.session_state:
+            del st.session_state["task_duration"]  
     
 
 def main():
@@ -34,26 +69,31 @@ def main():
     with home:
         st.header("Introduction")
         st.write("""
-                ...
-                """)
+        Welcome to the usability testing interface. Please proceed through each tab:
+        1. Give consent
+        2. Fill out demographics
+        3. Complete tasks
+        4. Submit exit questionnaire
+        5. View aggregated data in the Report tab
+        """)
         
     with consent:
         st.header("Consent Form")
         st.write("""
-                 Please read consent form
-                 """)
+        Please read the following consent agreement carefully.
+        """)
         st.write("""
-                 **Consent Agreement**
-                 - yada
-                 - yada
-                 - yada
-                 """)
+        **Consent Agreement**
+        - Your data will be used for research purposes only.
+        - You may withdraw at any time.
+        - All responses are anonymous.
+        """)
         
         consent_given = st.checkbox("I agree to the terms above")
 
         if st.button("Submit Consent"):
             if not consent_given:
-                st.warning("You must agree before proceeding")
+                st.warning("You must agree to the consent terms before proceeding.")
             else:
                 st.success("Consent Submitted!")
                 data_dict = {
@@ -72,7 +112,7 @@ def main():
             occupation = st.text_input("Occupation")
             familiarity = st.selectbox("Familiarity with tools?" , ["Not Familiar" , "Somewhat Familiar" , "Very Familiar"])
 
-            submitted = st.form_submit_button("Submited Demographics")
+            submitted = st.form_submit_button("Submitted Demographics")
             if submitted:
                 st.success("Demographic Data Submitted!")
                 data_dict = {
@@ -89,66 +129,25 @@ def main():
 
         st.write("Please select a task and record your experience completing it")
 
-        selected_task = st.selectbox("Select Task", ["Task 1" , "Task 2" , "Task 3"])
+        selected_task = st.selectbox("Select Task", ["Task 1: Full App Flow (Timed)" , "Task 2: Advanced Mode Testing" , "Task 3: Interpreting Output"])
 
-        if selected_task == "Task 1":
-            st.write("Task Description: Time how long it takes to complete full app in Advanced Mode")
-
-            start_button = st.button("Start TaskTimer")
-            if start_button:
-                st.session_state["start_time"] = time.time()
-                st.info("Task timer started. Complete your task and click 'Stop Task Timer'")
-
-            stop_button = st.button("Stop Task Timer")
-            if stop_button and "start_time" in st.session_state:
-                duration = time.time() - st.session_state["start_time"]
-                st.session_state["task_duration"] = duration
-                st.success(f"Task completed in {duration:.2f} seconds!")
-
-            success = st.radio("Was the task completed successfully?", ["Yes", "No", "Partial"])
-            notes = st.text_area("Observer Notes")
-
-            if st.button("Save Task Results"):
-                duration_val = st.session_state.get("task_duration", None)
-                st.success("Task Data Submitted!")
-
-                data_dict = {
-                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "task_name": selected_task,
-                    "success": success,
-                    "duration_seconds": duration_val if duration_val else "",
-                    "notes": notes
-                }
-                save_to_csv(data_dict, TASK_CSV)
-                
-                if "start_time" in st.session_state:
-                    del st.session_state["start_time"]
-                if "task_duration" in st.session_state:
-                    del st.session_state["task_duration"]
-
-        elif selected_task == "Task 2":
-            st.write("Use advanced mode to display additional information + graphs")
-            success = st.radio("Was the task completed successfully?", ["Yes", "No", "Partial"])
-            notes = st.text_area("Observer Notes")
-            data_dict = {
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "task_name": selected_task,
-                "success": success,
-                "notes": notes
-            }
-            save_to_csv(data_dict, TASK_CSV)
-
+        if selected_task == "Task 1: Full App Flow (Timed)":
+            task_helper(
+                task_name="Task 1",
+                task_description="Time how long it takes to complete the entire app using Advanced Mode.",
+                timer=True
+            )
+        elif selected_task == "Task 2: Enable Advanced Mode":
+            task_helper(
+                task_name="Task 2",
+                task_description="Use Advanced Mode to display additional info and graphs."
+            )
         else:
-            st.write("After submitting, look at the calories and macronutrient results, and report if you can understand what they mean or if you need help tags")
-            success = st.radio("Was the task completed successfully?", ["Yes", "No", "Partial"])
-            notes = st.text_area("Observer Notes")
-            data_dict = {
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "task_name": selected_task,
-                "success": success,
-                "notes": notes
-            }
-            save_to_csv(data_dict, TASK_CSV)
+            task_helper(
+                task_name="Task 3",
+                task_description="Look at the calories, water intake, and macronutrient results. Report if they are understandable without help."
+            )
+
 
     with exit:
         st.header("Exit Questionnaire")
@@ -212,7 +211,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-        
-
-                
-
