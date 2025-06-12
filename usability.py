@@ -61,3 +61,25 @@ def main():
                     'consent_given': consent_given
                 }
                 save_to_csv(data_dict=data_dict , csv_file=CONSENT_CSV)
+        
+    with demographics:
+        st.header("Demographic Questionnaire")
+
+        with st.form("demographic_form"):
+
+            name = st.text_input("Name (optional)")
+            age = st.text_input("Age")
+            occupation = st.text_input("Occupation")
+            familiarity = st.selectbox("Familiarity with tools?" , ["Not Familiar" , "Somewhat Familiar" , "Very Familiar"])
+
+            submitted = st.form_submit_button("Submited Demographics")
+            if submitted:
+                st.success("Demographic Data Submitted!")
+                data_dict = {
+                    'timestamp': time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'name': name,
+                    'age': age,
+                    'occupation': occupation,
+                    'familiarity': familiarity
+                }
+                save_to_csv(data_dict=data_dict , csv_file=DEMOGRAPHIC_CSV)
